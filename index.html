@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DevForge — Automate routine engineering work · AI engineering teammate</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛠️</text></svg>" />
+<meta name="description" content="DevForge is an AI engineering teammate that automatically delivers the routine work in your backlog — tested, reviewed pull requests, with every risky request refused and every change approved by a human. Automate up to 90% of repetitive engineering work without losing control." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0b0a07;
+    --bg-2:#120e08;
+    --surface:rgba(255,255,255,.035);
+    --surface-2:rgba(255,255,255,.06);
+    --glass:rgba(26,20,11,.55);
+    --line:rgba(180,150,100,.15);
+    --line-2:rgba(180,150,100,.26);
+    --em:#fbbf24;
+    --em-2:#f59e0b;
+    --em-3:#ea580c;
+    --gold:#fcd34d;
+    --ember:#fb923c;
+    --ink:#f8f5ef;
+    --ink-2:#e3d9c6;
+    --muted:#a89878;
+    --muted-2:#7c6f57;
+    --ok:#34d399;
+    --bad:#f87171;
+    --grad:linear-gradient(135deg,#fde68a 0%,#fbbf24 38%,#f59e0b 68%,#ea580c 100%);
+    --grad-text:linear-gradient(120deg,#fde68a,#fbbf24 50%,#fb923c);
+    --r:18px; --r-sm:13px;
+    --sh:0 1px 2px rgba(0,0,0,.4);
+    --sh-md:0 20px 50px rgba(0,0,0,.5);
+    --sh-glow:0 0 0 1px rgba(251,191,36,.18),0 24px 60px rgba(234,88,12,.2);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif;
+    line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  /* ambient glows — molten forge */
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(820px 520px at 80% -8%,rgba(245,158,11,.2),transparent 60%),
+      radial-gradient(700px 520px at 6% 10%,rgba(234,88,12,.13),transparent 60%),
+      radial-gradient(900px 720px at 50% 122%,rgba(251,191,36,.12),transparent 60%)}
+  a{color:var(--em);text-decoration:none}
+  a:hover{color:var(--gold)}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 26px;position:relative;z-index:1}
+  .section{padding:104px 0}
+  h1,h2,h3,.brand,.eyebrow,.stat .n,.btn{font-family:"Space Grotesk","Inter",sans-serif}
+  h2{font-size:clamp(2rem,4vw,3rem);font-weight:700;letter-spacing:-.03em;margin:0 0 16px;line-height:1.08}
+  h3{font-size:1.12rem;font-weight:600;margin:0 0 8px;letter-spacing:-.01em;color:#fff}
+  .grad-text{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.74rem;font-weight:600;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--em);margin-bottom:18px}
+  .eyebrow::before{content:"";width:26px;height:1.5px;background:linear-gradient(90deg,var(--em),transparent)}
+  .lead{color:var(--ink-2);font-size:1.12rem;max-width:680px;margin:0}
+  .center{text-align:center}.center .eyebrow{justify-content:center}.center .lead{margin:0 auto}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* nav */
+  .topbar{position:sticky;top:0;z-index:80;backdrop-filter:blur(16px) saturate(160%);
+    background:rgba(11,10,7,.62);border-bottom:1px solid var(--line)}
+  .topbar .wrap{display:flex;align-items:center;gap:18px;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.01em;font-size:1.02rem;color:#fff}
+  .logo{width:32px;height:32px;border-radius:9px;background:var(--grad);display:grid;place-items:center;
+    font-size:1rem;box-shadow:0 0 18px rgba(245,158,11,.5)}
+  .navlinks{margin-left:auto;display:flex;align-items:center;gap:28px;font-size:.92rem}
+  .navlinks a{color:var(--muted);font-weight:500}
+  .navlinks a:hover{color:#fff}
+  .nav-cta{padding:9px 17px;border-radius:10px;border:1px solid var(--line-2);color:#fff!important;font-weight:600;
+    background:var(--surface)}
+  .nav-cta:hover{border-color:var(--em);box-shadow:0 0 0 3px rgba(251,191,36,.12)}
+  @media(max-width:780px){.navlinks a:not(.nav-cta){display:none}}
+
+  /* hero */
+  .hero .wrap{display:grid;grid-template-columns:1.04fr .96fr;gap:54px;align-items:center;padding:96px 26px 80px}
+  @media(max-width:940px){.hero .wrap{grid-template-columns:1fr;gap:40px;padding-top:64px}}
+  .kicker{display:block;font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:.95rem;letter-spacing:-.01em;
+    color:var(--em);margin-bottom:14px}
+  .pill{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;color:var(--ink-2);
+    padding:7px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);margin-bottom:26px}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--em);box-shadow:0 0 10px var(--em)}
+  h1{font-size:clamp(2.5rem,5.6vw,3.95rem);font-weight:700;letter-spacing:-.04em;line-height:1.04;margin:0 0 22px;color:#fff}
+  .hero .sub{font-size:1.14rem;color:var(--muted);max-width:560px;margin:0 0 34px}
+  .btnrow{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:40px}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:14px 24px;border-radius:12px;font-size:.95rem;
+    font-weight:600;cursor:pointer;transition:transform .18s,box-shadow .18s,border-color .18s}
+  .btn.primary{background:var(--grad);color:#2a1c06;border:none;box-shadow:0 14px 34px rgba(234,88,12,.32)}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 20px 46px rgba(234,88,12,.5)}
+  .btn.ghost{background:var(--surface);color:#fff;border:1px solid var(--line-2)}
+  .btn.ghost:hover{transform:translateY(-2px);border-color:var(--em)}
+  .stats{display:flex;gap:34px;flex-wrap:wrap}
+  .stat .n{font-size:1.7rem;font-weight:700;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;
+    color:transparent;line-height:1;letter-spacing:-.02em}
+  .stat .l{font-size:.8rem;color:var(--muted-2);margin-top:5px}
+
+  /* glass card generic */
+  .glass{background:var(--glass);border:1px solid var(--line);border-radius:var(--r);backdrop-filter:blur(12px);
+    box-shadow:var(--sh-md);position:relative;overflow:hidden}
+  .glass::before{content:"";position:absolute;inset:0;border-radius:var(--r);padding:1px;pointer-events:none;
+    background:linear-gradient(140deg,rgba(251,191,36,.4),transparent 40%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:.55}
+
+  /* hero console — agent run log */
+  .console{padding:0}
+  .console-bar{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--line);
+    background:rgba(255,255,255,.02)}
+  .console-bar .av{width:32px;height:32px;border-radius:9px;background:var(--grad);display:grid;place-items:center;font-size:.95rem}
+  .console-bar .nm{font-weight:600;font-size:.9rem;color:#fff;line-height:1.2}
+  .console-bar .st{font-size:.72rem;color:var(--em);display:flex;align-items:center;gap:5px}
+  .console-bar .st::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--em);box-shadow:0 0 8px var(--em)}
+  .console-bar .tag{margin-left:auto;font-size:.62rem;font-weight:700;letter-spacing:.08em;color:var(--gold);
+    background:rgba(252,211,77,.1);border:1px solid rgba(252,211,77,.26);padding:4px 9px;border-radius:6px}
+  .console-body{padding:18px;display:flex;flex-direction:column;gap:9px;font-family:"JetBrains Mono",ui-monospace,monospace}
+  .ticket{display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:11px;background:rgba(251,191,36,.07);
+    border:1px solid rgba(251,191,36,.24);font-size:.82rem;color:var(--ink)}
+  .ticket .jk{font-weight:600;color:var(--gold);font-size:.72rem;background:rgba(252,211,77,.12);padding:2px 7px;border-radius:5px;flex:0 0 auto}
+  .logln{display:flex;align-items:flex-start;gap:9px;font-size:.8rem;color:var(--ink-2);line-height:1.5;padding-left:2px}
+  .logln .gl{flex:0 0 auto}
+  .logln .gl.ok{color:var(--ok)}
+  .logln .dim{color:var(--muted-2)}
+  .pr{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:.8rem;font-weight:600;color:#2a1c06;
+    background:var(--grad);padding:10px 13px;border-radius:10px;box-shadow:0 10px 26px rgba(234,88,12,.28)}
+
+  /* marquee strip */
+  .strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.015)}
+  .strip .wrap{display:flex;align-items:center;gap:13px;flex-wrap:wrap;justify-content:center;padding:22px 26px}
+  .strip .lbl{font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2);margin-right:6px}
+  .ms{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;color:var(--ink-2);font-weight:500;
+    padding:7px 13px;border-radius:9px;border:1px solid var(--line);background:var(--surface)}
+  .ms .sq{width:8px;height:8px;border-radius:3px;background:var(--em);box-shadow:0 0 8px var(--em)}
+
+  /* grids */
+  .grid{display:grid;gap:18px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:880px){.g3{grid-template-columns:1fr}}
+  .card{padding:28px}
+  .card .ico{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;font-size:1.35rem;margin-bottom:18px;
+    background:linear-gradient(140deg,rgba(251,191,36,.16),rgba(234,88,12,.06));border:1px solid rgba(251,191,36,.22)}
+  .card p{color:var(--muted);margin:0;font-size:.94rem}
+  .card .tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+  .card .t{font-size:.7rem;font-weight:600;color:var(--em);background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.18);
+    padding:3px 9px;border-radius:6px;font-family:"JetBrains Mono",monospace}
+  .lift{transition:transform .2s,border-color .2s,box-shadow .2s}
+  .lift:hover{transform:translateY(-5px);border-color:var(--line-2);box-shadow:var(--sh-glow)}
+
+  /* spotlight (loop / policy) */
+  .spot{display:grid;grid-template-columns:.92fr 1.08fr;gap:46px;align-items:center}
+  @media(max-width:940px){.spot{grid-template-columns:1fr;gap:34px}}
+  .router{display:inline-flex;align-items:center;gap:10px;padding:11px 18px;border-radius:12px;font-weight:600;
+    font-family:"Space Grotesk",sans-serif;font-size:.9rem;color:#2a1c06;background:var(--grad);
+    box-shadow:0 12px 30px rgba(234,88,12,.3);margin-bottom:20px}
+  .tiers{display:flex;flex-direction:column;gap:14px}
+  .tier{display:flex;gap:18px;align-items:flex-start;padding:20px 22px;border-radius:var(--r-sm);
+    background:var(--glass);border:1px solid var(--line);position:relative;overflow:hidden;
+    transition:transform .18s,border-color .18s}
+  .tier:hover{transform:translateX(5px);border-color:var(--line-2)}
+  .tier::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+  .tier.t1::before{background:linear-gradient(#34d399,#10b981)}
+  .tier.t2::before{background:linear-gradient(#f87171,#dc2626)}
+  .tier.t3::before{background:linear-gradient(#fbbf24,#ea580c)}
+  .tier .badge{flex:0 0 auto;width:62px;height:62px;border-radius:13px;display:grid;place-items:center;text-align:center;
+    font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:1.5rem;line-height:1.1}
+  .tier.t1 .badge{background:rgba(52,211,153,.14);border:1px solid rgba(52,211,153,.4)}
+  .tier.t2 .badge{background:rgba(248,113,113,.13);border:1px solid rgba(248,113,113,.4)}
+  .tier.t3 .badge{background:rgba(251,191,36,.14);border:1px solid rgba(251,191,36,.4)}
+  .tier h3{margin:0 0 3px;font-size:1rem}
+  .tier .rng{font-size:.78rem;font-weight:600;color:var(--muted-2);font-family:"JetBrains Mono",monospace;margin-bottom:6px}
+  .tier p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.5}
+  .spot .note{margin-top:22px;font-size:.9rem;color:var(--ink-2);display:flex;gap:11px;align-items:flex-start}
+  .spot .note span{color:var(--em);font-size:1.1rem}
+
+  /* loop visual */
+  .loopwrap{display:flex;flex-direction:column;gap:0;align-items:stretch}
+  .lstep{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:var(--r-sm);
+    background:var(--glass);border:1px solid var(--line);position:relative}
+  .lstep .ln{font-family:"JetBrains Mono",monospace;font-size:.72rem;font-weight:700;color:var(--em);
+    width:30px;flex:0 0 auto}
+  .lstep h3{font-size:.98rem;margin:0 0 2px}
+  .lstep small{color:var(--muted);font-size:.82rem;display:block;line-height:1.45}
+  .lstep .ic{flex:0 0 auto;width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-size:1.2rem;
+    background:linear-gradient(140deg,rgba(251,191,36,.16),rgba(234,88,12,.06));border:1px solid rgba(251,191,36,.24)}
+  .lconn{display:flex;align-items:center;justify-content:center;gap:10px;padding:7px 0;color:var(--muted-2);font-size:.72rem;
+    font-family:"JetBrains Mono",monospace}
+  .lconn .bar{width:2px;height:14px;background:linear-gradient(rgba(180,150,100,.3),rgba(251,191,36,.7))}
+  .retry{margin-top:14px;display:flex;align-items:center;gap:10px;justify-content:center;font-size:.82rem;color:var(--ember);
+    font-weight:600;background:rgba(251,146,60,.08);border:1px dashed rgba(251,146,60,.4);border-radius:11px;padding:11px 16px}
+  .outs{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .out{flex:1 1 140px;text-align:center;padding:13px 10px;border-radius:11px;font-size:.82rem;font-weight:600}
+  .out small{display:block;font-weight:400;font-size:.72rem;margin-top:3px;font-family:"Inter",sans-serif}
+  .out.ok{color:var(--ok);background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.3)}
+  .out.bad{color:var(--bad);background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.3)}
+  .out.warn{color:var(--gold);background:rgba(252,211,77,.07);border:1px solid rgba(252,211,77,.3)}
+
+  /* policy layers */
+  .layers{display:flex;flex-direction:column;gap:16px}
+  .layer{padding:22px;border-radius:var(--r-sm);background:var(--glass);border:1px solid var(--line)}
+  .layer .h{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .layer .ln{font-family:"JetBrains Mono",monospace;font-size:.72rem;font-weight:700;color:#2a1c06;
+    background:var(--grad);padding:4px 9px;border-radius:6px}
+  .layer h3{margin:0;font-size:1rem}
+  .layer p{margin:0;color:var(--muted);font-size:.88rem}
+  .ruleset{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .rule{font-family:"JetBrains Mono",monospace;font-size:.72rem;font-weight:600;color:var(--gold);
+    background:rgba(252,211,77,.08);border:1px solid rgba(252,211,77,.22);padding:6px 11px;border-radius:7px}
+
+  /* stack chips grid */
+  .stack{display:grid;grid-template-columns:repeat(5,1fr);gap:13px}
+  @media(max-width:900px){.stack{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:560px){.stack{grid-template-columns:repeat(2,1fr)}}
+  .sc{padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);text-align:center;
+    transition:transform .16s,border-color .16s}
+  .sc:hover{transform:translateY(-3px);border-color:rgba(251,191,36,.35)}
+  .sc .bd{width:34px;height:34px;border-radius:9px;margin:0 auto 10px;display:grid;place-items:center;font-weight:700;
+    font-size:.74rem;color:#2a1c06;background:var(--grad);font-family:"Space Grotesk",sans-serif}
+  .sc h3{font-size:.86rem;margin:0 0 2px}
+  .sc small{color:var(--muted-2);font-size:.74rem}
+
+  /* two-up small cards */
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:760px){.duo{grid-template-columns:1fr}}
+
+  /* ---- native journey diagram ---- */
+  .panel{background:var(--glass);border:1px solid var(--line);border-radius:var(--r);padding:38px 28px;
+    box-shadow:var(--sh-md);backdrop-filter:blur(12px);overflow-x:auto}
+  .node{position:relative;border-radius:12px;padding:12px 18px;font-family:"Space Grotesk",sans-serif;font-weight:600;
+    font-size:.86rem;color:#fff;text-align:center;background:rgba(255,255,255,.05);border:1px solid var(--line-2);white-space:nowrap}
+  .node small{display:block;font-family:"Inter",sans-serif;font-weight:400;font-size:.74rem;color:var(--muted);margin-top:2px;white-space:normal}
+  .node.start{background:var(--grad);color:#2a1c06;border:none;border-radius:999px;box-shadow:0 10px 26px rgba(234,88,12,.32)}
+  .node.dec{background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.45);color:var(--gold);border-radius:999px}
+  .node.leaf{border-color:rgba(251,191,36,.4)}
+  .node.ok{border-color:rgba(52,211,153,.55);color:#6ee7b7;background:rgba(52,211,153,.07)}
+  .node.bad{border-color:rgba(248,113,113,.5);color:#fca5a5;background:rgba(248,113,113,.07)}
+  .arw{width:2px;height:22px;margin:8px auto;background:linear-gradient(rgba(180,150,100,.3),rgba(251,191,36,.7));position:relative;flex:0 0 auto}
+  .arw::after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);
+    border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid rgba(251,191,36,.78)}
+  .arw .el{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-family:"JetBrains Mono",monospace;
+    font-size:.68rem;color:var(--muted-2);white-space:nowrap;font-weight:600}
+  .jflow{display:flex;flex-direction:column;align-items:center;min-width:560px}
+  .jcols{display:grid;grid-template-columns:1fr 1fr;gap:36px;width:100%;max-width:740px}
+  .jcol{display:flex;flex-direction:column;align-items:center}
+  .lane{font-family:"Space Grotesk",sans-serif;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted-2);margin-bottom:13px}
+  .fork{position:relative;width:100%;max-width:740px;height:24px}
+  .fork span{position:absolute;background:rgba(251,191,36,.55)}
+  .fork .v{left:50%;top:0;width:2px;height:12px;transform:translateX(-50%)}
+  .fork .h{left:25%;right:25%;top:12px;height:2px}
+  .fork .d{top:12px;width:2px;height:12px;transform:translateX(-50%)}
+  .fork .d::after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);
+    border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid rgba(251,191,36,.78)}
+
+  /* architecture svg */
+  .archsvg{display:block;width:100%;min-width:880px;height:auto}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-top:22px;font-size:.78rem;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend .sw{width:12px;height:12px;border-radius:4px}
+
+  /* cta */
+  .cta{padding:62px 44px;text-align:center;border-radius:24px;background:
+    linear-gradient(140deg,rgba(245,158,11,.16),rgba(234,88,12,.06)),var(--glass);
+    border:1px solid rgba(251,191,36,.28);box-shadow:var(--sh-glow)}
+  .cta h2{color:#fff}
+  .cta p{color:var(--ink-2);max-width:560px;margin:12px auto 30px;font-size:1.05rem}
+  .cta .btnrow{justify-content:center;margin:0}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:46px 0 60px;background:rgba(255,255,255,.012)}
+  footer .top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+  footer .desc{color:var(--muted-2);font-size:.88rem;max-width:340px;margin-top:8px}
+  footer .col h4{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);margin:0 0 12px}
+  footer .col a{display:block;color:var(--ink-2);font-size:.9rem;margin-bottom:9px}
+  .pfbtn{display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:12px;font-weight:600;
+    font-family:"Space Grotesk",sans-serif;color:#2a1c06!important;background:var(--grad);
+    box-shadow:0 12px 30px rgba(234,88,12,.3);transition:transform .2s,box-shadow .2s}
+  .pfbtn:hover{transform:translateY(-3px);box-shadow:0 18px 42px rgba(234,88,12,.5);color:#2a1c06!important}
+  footer .legal{margin-top:38px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted-2);font-size:.82rem;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="logo">🛠️</span> DevForge</div>
+    <nav class="navlinks">
+      <a href="#value">Why teams use it</a>
+      <a href="#how">How it works</a>
+      <a href="#journey">In practice</a>
+      <a href="#platform">Platform</a>
+      <a class="nav-cta" href="https://lisekarimi.com" target="_blank" rel="noopener">More projects ↗</a>
+    </nav>
+  </div>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="kicker">DevForge</span>
+      <span class="pill"><span class="dot"></span> Agentic AI for enterprise &amp; regulated industries</span>
+      <h1>Automate routine engineering work — <span class="grad-text">with full control.</span></h1>
+      <p class="sub">DevForge is an agentic AI teammate that completes routine tickets for you — tested and review-ready. It automates up to <strong>90% of repetitive engineering work</strong> and cuts delivery from days to minutes. Every change is approved by a human.</p>
+      <div class="btnrow">
+        <a class="btn primary" href="#value">Why teams use it</a>
+        <a class="btn ghost" href="#how">How it works</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n">~90%</div><div class="l">Routine work automated</div></div>
+        <div class="stat"><div class="n">10×</div><div class="l">Faster delivery</div></div>
+        <div class="stat"><div class="n">100%</div><div class="l">Human-approved</div></div>
+      </div>
+    </div>
+
+    <!-- console : agent run log -->
+    <div class="glass console reveal">
+      <div class="console-bar">
+        <span class="av">🛠️</span>
+        <div>
+          <div class="nm">DevForge</div>
+          <div class="st">Working on a ticket</div>
+        </div>
+        <span class="tag">REQUEST → DONE</span>
+      </div>
+      <div class="console-body">
+        <div class="ticket"><span class="jk">KAN-12</span> Add a card-count badge to each board column</div>
+        <div class="logln"><span class="gl ok">✓</span><span>Read the request and the codebase <span class="dim">· understood the conventions</span></span></div>
+        <div class="logln"><span class="gl ok">✓</span><span>Checked it's safe to build <span class="dim">· no policy or security concerns</span></span></div>
+        <div class="logln"><span class="gl ok">✓</span><span>Wrote the change <span class="dim">· with tests included</span></span></div>
+        <div class="logln"><span class="gl ok">✓</span><span>Proved it works <span class="dim">· all tests passing</span></span></div>
+        <div class="pr"><span>✅</span> Review-ready change delivered → waiting for human approval</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="wrap">
+    <span class="lbl">Why teams use it</span>
+    <span class="ms"><span class="sq"></span> Faster delivery</span>
+    <span class="ms"><span class="sq"></span> Tested by default</span>
+    <span class="ms"><span class="sq"></span> Risky requests refused</span>
+    <span class="ms"><span class="sq"></span> Full audit trail</span>
+    <span class="ms"><span class="sq"></span> Human-approved</span>
+  </div>
+</div>
+
+<!-- VALUE -->
+<section class="section" id="value">
+  <div class="wrap">
+    <div class="center reveal" style="margin-bottom:48px">
+      <span class="eyebrow">Why teams use it</span>
+      <h2>More delivered, less busywork — <span class="grad-text">with full control.</span></h2>
+      <p class="lead">Agentic AI that completes routine work in minutes — with the quality, safety, and oversight an enterprise requires.</p>
+    </div>
+    <div class="grid g3">
+      <div class="glass card lift reveal">
+        <div class="ico">🚀</div>
+        <h3>Clear the backlog</h3>
+        <p>Routine tickets are completed automatically — up to <strong>90%</strong> of the work, with no developer time.</p>
+        <div class="tags"><span class="t">less busywork</span></div>
+      </div>
+      <div class="glass card lift reveal">
+        <div class="ico">⏱️</div>
+        <h3>Deliver faster</h3>
+        <p>Work that waited days in the backlog is review-ready in minutes — <strong>10×</strong> faster.</p>
+        <div class="tags"><span class="t">days → minutes</span></div>
+      </div>
+      <div class="glass card lift reveal">
+        <div class="ico">🎯</div>
+        <h3>Focus where it counts</h3>
+        <p>Engineers stop doing repetitive work and focus on the hard problems — up to <strong>a day a week</strong> reclaimed.</p>
+        <div class="tags"><span class="t">higher-value work</span></div>
+      </div>
+      <div class="glass card lift reveal">
+        <div class="ico">✅</div>
+        <h3>Quality by default</h3>
+        <p>Every change ships with tests — <strong>100%</strong> — so fewer defects reach production.</p>
+        <div class="tags"><span class="t">tested by default</span></div>
+      </div>
+      <div class="glass card lift reveal">
+        <div class="ico">🛡️</div>
+        <h3>Safe to adopt</h3>
+        <p>Risky requests are refused automatically, every time, with a full audit trail.</p>
+        <div class="tags"><span class="t">governed &amp; auditable</span></div>
+      </div>
+      <div class="glass card lift reveal">
+        <div class="ico">👤</div>
+        <h3>Always in control</h3>
+        <p>Nothing merges on its own. A human approves <strong>100%</strong> of changes.</p>
+        <div class="tags"><span class="t">human-approved</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how" style="border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.012)">
+  <div class="wrap">
+    <div class="spot">
+      <div class="reveal">
+        <span class="eyebrow">How it works</span>
+        <h2>Reliable enough to trust <span class="grad-text">with real work.</span></h2>
+        <p class="lead" style="margin-bottom:6px">The agentic AI understands the request, checks it is safe, then proves it works by running your tests. It corrects its own mistakes before anyone sees them.</p>
+        <div class="note"><span>✅</span><p>You only review <b style="color:#fff">finished, tested work</b> — never something that breaks the build.</p></div>
+      </div>
+      <div class="reveal">
+        <div class="loopwrap">
+          <div class="lstep">
+            <span class="ln">01</span><div class="ic">🧠</div>
+            <div><h3>Understands the request</h3><small>Reads the ticket and your codebase, then writes the change the way your team would.</small></div>
+          </div>
+          <div class="lconn"><span class="bar"></span></div>
+          <div class="lstep">
+            <span class="ln">02</span><div class="ic">🛡️</div>
+            <div><h3>Checks it's safe</h3><small>Screens every change against your engineering and security rules before going further.</small></div>
+          </div>
+          <div class="lconn"><span class="bar"></span></div>
+          <div class="lstep">
+            <span class="ln">03</span><div class="ic">🧪</div>
+            <div><h3>Proves it works</h3><small>Runs your tests on the new code — and fixes its own mistakes if any check fails.</small></div>
+          </div>
+          <div class="retry">↻ If a check fails, it corrects itself — you only see work that passed</div>
+          <div class="outs">
+            <div class="out ok">✓ Delivered<small>Review-ready change</small></div>
+            <div class="out bad">⛔ Refused<small>Risky request, blocked</small></div>
+            <div class="out warn">✗ Flagged<small>Couldn't finish — nothing half-done</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GOVERNANCE -->
+<section class="section" id="governance">
+  <div class="wrap">
+    <div class="spot">
+      <div class="reveal" style="order:2">
+        <div class="layers">
+          <div class="layer">
+            <div class="h"><span class="ln">CHECK 1</span><h3>Understands intent</h3></div>
+            <p>If a request asks for something it shouldn't — exposing a secret, weakening a security check — DevForge recognizes it and refuses, explaining exactly which rule it would break.</p>
+          </div>
+          <div class="layer">
+            <div class="h"><span class="ln">CHECK 2</span><h3>Inspects the actual change</h3></div>
+            <p>Every line it produces is then scanned against your rules — a deterministic safety net that catches anything the first check might miss. Both must pass before the work is ever delivered.</p>
+          </div>
+        </div>
+        <div class="ruleset">
+          <span class="rule">No hardcoded secrets</span>
+          <span class="rule">No weakening security</span>
+          <span class="rule">No unsafe code execution</span>
+          <span class="rule">No deleting your tests</span>
+          <span class="rule">No production config changes</span>
+        </div>
+      </div>
+      <div class="reveal" style="order:1">
+        <span class="eyebrow">Governance &amp; trust</span>
+        <h2>Some requests <span class="grad-text">should never ship.</span></h2>
+        <p class="lead" style="margin-bottom:6px">Your engineering and security rules are enforced on every request, automatically. Anything risky is <strong>refused before a line is written</strong>, and logged.</p>
+        <div class="note"><span>🔒</span><p>Every outcome is recorded — a complete <b style="color:#fff">audit trail</b> for compliance.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IN PRACTICE -->
+<section class="section" id="journey" style="border-top:1px solid var(--line);background:rgba(255,255,255,.012)">
+  <div class="wrap">
+    <div class="center reveal" style="margin-bottom:42px">
+      <span class="eyebrow">In practice</span>
+      <h2>From request to reviewed work</h2>
+      <p class="lead">Flag a ticket. Minutes later it is done, tested, and ready for review — or safely refused. No new tools, no change to how your team works.</p>
+    </div>
+    <div class="panel reveal">
+      <div class="jflow">
+        <div class="node start">Team flags a routine ticket <small style="color:rgba(42,28,6,.7)">one label, in the tools they already use</small></div>
+        <div class="arw"><span class="el">minutes · automated</span></div>
+        <div class="node dec">Safe to build?</div>
+        <div class="fork"><span class="v"></span><span class="h"></span><span class="d" style="left:25%"></span><span class="d" style="left:75%"></span></div>
+        <div class="jcols">
+          <div class="jcol">
+            <div class="lane">Refused</div>
+            <div class="node bad">No — against the rules</div>
+            <div class="arw"></div>
+            <div class="node bad">Nothing built ⛔<small>flagged &amp; explained · logged for audit</small></div>
+          </div>
+          <div class="jcol">
+            <div class="lane">Built</div>
+            <div class="node leaf">Yes — write the change + tests</div>
+            <div class="arw"></div>
+            <div class="node dec">Tests pass? <small style="color:var(--muted)">fixes itself if not</small></div>
+            <div class="arw"></div>
+            <div class="node ok">Review-ready ✓<small>tested change · waiting for approval</small></div>
+          </div>
+        </div>
+        <div class="arw"></div>
+        <div class="node start">A person decides <small style="color:rgba(42,28,6,.7)">approve &amp; ship · or send it back</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORM -->
+<section class="section" id="platform" style="border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="center reveal" style="margin-bottom:44px">
+      <span class="eyebrow">Enterprise platform</span>
+      <h2>Deployed on Microsoft Azure — <span class="grad-text">secure, governed, measurable.</span></h2>
+      <p class="lead">A hybrid low-code and pro-code architecture on enterprise-grade Azure infrastructure — with built-in governance, end-to-end observability, and dashboards that quantify the ROI.</p>
+    </div>
+
+    <div class="stack reveal">
+      <div class="sc"><div class="bd">AZ</div><h3>Microsoft Azure</h3><small>Cloud platform</small></div>
+      <div class="sc"><div class="bd">AIF</div><h3>Azure AI Foundry</h3><small>Enterprise LLM</small></div>
+      <div class="sc"><div class="bd">PA</div><h3>Power Automate</h3><small>Orchestration</small></div>
+      <div class="sc"><div class="bd">JR</div><h3>Jira</h3><small>Work intake</small></div>
+      <div class="sc"><div class="bd">PY</div><h3>Python · FastAPI</h3><small>Agent service</small></div>
+      <div class="sc"><div class="bd">GH</div><h3>GitHub App</h3><small>Secure access</small></div>
+      <div class="sc"><div class="bd">AI</div><h3>App Insights</h3><small>Telemetry</small></div>
+      <div class="sc"><div class="bd">BI</div><h3>Power BI</h3><small>ROI dashboards</small></div>
+    </div>
+
+    <div class="duo reveal" style="margin-top:18px">
+      <div class="glass card lift">
+        <div class="ico">📊</div>
+        <h3>Measurable business impact</h3>
+        <p>Every run is instrumented with Application Insights telemetry and surfaced in Power BI — leadership tracks delivery gains, adoption, and ROI in real time.</p>
+      </div>
+      <div class="glass card lift">
+        <div class="ico">🛡️</div>
+        <h3>Governance &amp; compliance</h3>
+        <p>Policy-as-code, full audit trails, and human approval on every change — AI adoption that meets enterprise security, governance, and compliance requirements.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section" style="padding-top:40px">
+  <div class="wrap">
+    <div class="cta reveal">
+      <h2>Give your team back its time.</h2>
+      <p>DevForge completes the routine work — tested, safe, and approved by a human. The speed of agentic AI, with full control.</p>
+      <div class="btnrow">
+        <a class="btn primary" href="https://lisekarimi.com" target="_blank" rel="noopener">✨ See more of my work</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <div class="brand"><span class="logo">🛠️</span> DevForge</div>
+        <p class="desc">Agentic AI that completes routine engineering work — tested, review-ready, and always approved by a human.</p>
+      </div>
+      <div class="col">
+        <h4>What you get</h4>
+        <a href="#value">Less busywork, more shipped</a>
+        <a href="#how">Quality &amp; safety built in</a>
+        <a href="#journey">Humans always in control</a>
+      </div>
+      <div class="col" style="align-self:center">
+        <a class="pfbtn" href="https://lisekarimi.com" target="_blank" rel="noopener">✨ More projects →</a>
+      </div>
+    </div>
+    <div class="legal">
+      <span>© <span id="yr">2026</span> · DevForge — an AI engineering teammate for your backlog.</span>
+      <span>Faster delivery · Built-in quality · Risk refused · Human-approved</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.14});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(Math.min(i%3,2)*80)+'ms';io.observe(el)});
+  document.getElementById('yr').textContent=new Date().getFullYear();
+</script>
+</body>
+</html>
